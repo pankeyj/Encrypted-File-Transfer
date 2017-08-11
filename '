@@ -1,0 +1,55 @@
+/******************************************
+ * CS457 TCP Programming
+ * client.c
+ * Purpose: Send files over a network
+ * @author Jacob Pankey
+********************************************/
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <stdio.h>
+#include <string.h>
+#define BUF_SIZE 256
+
+int main(int argc, char** arg)
+{
+	int sockfd = socket(AF_INET,SOCK_STREAM,0);
+	
+	if(sockfd < 0)
+	{
+		printf("There was an error creating the socket\n");
+		return 1;
+	}
+
+	int port;
+	char ip[5000];
+	printf("Which port?\n");
+	scanf("%d", &port);
+	printf("Which IP?\n");
+	scanf("%s", &ip);
+
+	struct sockaddr_in serveraddr;
+	serveraddr.sin_family = AF_INET;
+	serveraddr.sin_port = htons(port);
+	serveraddr.sin_addr.s_addr = inet_addr(ip);
+	
+	int e = connect(sockfd,(struct sockaddr*)&serveraddr,sizeof(serveraddr));
+	if (e < 0 )
+	{
+		printf("Error connecting\n");
+		return 1;
+	}
+	char recvBuffer[BUF_SIZE];
+	// Client continuously loops to accept a new file
+	// after the first finishes writing
+	while(1)
+	{
+//		int bytesRecv = recv(sockfd, recvBuffer, BUF_SIZE, 0);
+//		printf("Recieved: %s\n", recvBuffer);
+		printf("Commands:\n\t Broadcast msg\n\t SendTo 'ID' msg\n\t	 Kick 'ID'\n\t ListClients\n");
+		scanf("%s", &recvBuffer);
+		send(sockfd, recvBuffer, sizeof(recvBuffer), 0);		
+
+	}
+	close(sockfd);
+	return 0;
+}
